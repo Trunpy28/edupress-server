@@ -5,13 +5,22 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import routes from './Routes/index.js';
 
+const allowedOrigins = ['http://localhost:3001'];
+
 dotenv.config();
 
 const app = express();
 
-const PORT = 8080;
-
-app.use(cors());
+app.use(cors({
+  origin: function (origin, callback) {
+      if (allowedOrigins.includes(origin) || !origin) {
+          callback(null, true);
+      } else {
+          callback(new Error('Not allowed by CORS'));
+      }
+  },
+  credentials: true,
+}));
 
 app.use(cookieParser());
 app.use(express.json());
@@ -32,6 +41,6 @@ app.listen(process.env.PORT, (err) => {
   if (err) {
     console.error(`Error occurred: ${err.message}`);
   } else {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${process.env.PORT}`);
   }
 });

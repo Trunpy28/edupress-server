@@ -17,28 +17,6 @@ export const registerUser = async (req, res) => {
 };
 
 export const loginUser = async (req, res) => {
-    try {      
-        const { email, password } = req.body;
-        const { accessToken, refreshToken, role } = await UserService.login(email, password);
-
-        // Gửi refresh token qua cookie HttpOnly
-        res.cookie('refresh_token', refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === 'production', // Chỉ gửi qua HTTPS trong môi trường sản xuất
-            sameSite: 'Strict',
-        });
-
-        if (role === 'Admin') {
-            res.status(200).json({ accessToken, role });
-        } else {
-            res.status(200).json({ accessToken, message: 'User login successful, but no admin access' });
-        }
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
-};
-
-export const loginUserName = async (req, res) => {
     try {
         const { userName, password } = req.body;
         const { accessToken, refreshToken } = await UserService.loginUserName(userName, password);

@@ -36,7 +36,7 @@ const loginUserName = async (userName, password) => {
         if (!user) throw new Error('User not found');
 
         const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-        if (!isValidPassword) throw new Error('Invalid password');
+        if (!isValidPassword) throw new Error('Incorrect password');
 
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);

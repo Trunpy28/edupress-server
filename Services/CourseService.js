@@ -1,11 +1,18 @@
 import Course from "../Models/CourseModel.js";
 import Lesson from "../Models/LessonModel.js";
 import mongoose from "mongoose";
-import { createSlug } from "../Utils/CourseUtils.js";
+import slugify from "slugify";
 import RegisterCourseService from "./RegisterCourseService.js";
 
 const generateUniqueSlug = async (name) => {
-  let slug = createSlug(name);
+  let slug = slugify(name, {
+    replacement: "-",
+    remove: undefined,
+    lower: true,
+    strict: false,
+    trim: true,
+  });
+
   let slugExists = await Course.findOne({ urlSlug: slug });
   let counter = 1;
   let newSlug = slug;
@@ -20,26 +27,18 @@ const generateUniqueSlug = async (name) => {
 };
 
 const getCourses = async (queries) => {
-  let {
-    search,
-    sort,
-    category,
-    price,
-    level,
-    page = 1,
-    limit = 10,
-  } = queries;
+  let { search, sort, category, price, level, page = 1, limit = 10 } = queries;
 
-  if(typeof page === "string") {
+  if (typeof page === "string") {
     page = parseInt(page);
-    if(isNaN(page) || page < 1) page = 1;
+    if (isNaN(page) || page < 1) page = 1;
   }
 
-  if(typeof limit === "string") {
+  if (typeof limit === "string") {
     limit = parseInt(limit);
-    if(isNaN(limit) || limit < 1 || limit > 100) limit = 10;
+    if (isNaN(limit) || limit < 1 || limit > 100) limit = 10;
   }
-  
+
   try {
     let query = Course.find();
     if (search) {
@@ -92,8 +91,11 @@ const getCourses = async (queries) => {
           break;
       }
     }
-    
-    const courses = await query.skip((page - 1) * limit).limit(limit).exec();
+
+    const courses = await query
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .exec();
 
     return { courses, totalCourses };
   } catch (error) {
@@ -186,15 +188,18 @@ const deleteCourse = async (id) => {
   }
 };
 
-const getConfirmedCoursesForUser = async (userId) =>{
+const getConfirmedCoursesForUser = async (userId) => {
   try {
-    const confirmedCourseIds = await RegisterCourseService.getConfirmedCoursesForUser(userId);
+    const confirmedCourseIds =
+      await RegisterCourseService.getConfirmedCoursesForUser(userId);
     const courses = await Course.find({ _id: { $in: confirmedCourseIds } });
     return courses;
   } catch (error) {
-    throw new Error("Error fetching confirmed courses for user: " + error.message);
+    throw new Error(
+      "Error fetching confirmed courses for user: " + error.message
+    );
   }
-}
+};
 
 export default {
   getCourses,
@@ -204,5 +209,5 @@ export default {
   createCourses,
   updateCourse,
   deleteCourse,
-  getConfirmedCoursesForUser
+  getConfirmedCoursesForUser,
 };
