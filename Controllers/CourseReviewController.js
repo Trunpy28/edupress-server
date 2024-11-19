@@ -1,5 +1,4 @@
 import CourseReviewService from '../Services/CourseReviewService.js';
-import CourseService from '../Services/CourseService.js';
 import CourseReview from '../Models/CourseReview.js';
 
 export const createReview = async (req, res) => {
@@ -29,19 +28,12 @@ export const updateReview = async (req, res) => {
       return res.status(401).json({ message: 'User not logged in' });
     }
 
-    const { courseId, rating, review } = req.body;
+    const { rating, review } = req.body;
     const userId = req.user.id;
+    const userRole = req.user.role;
+    const reviewId = req.params.id;
 
-    const existingReview = await CourseReview.findOne({ userId, courseId });
-    if (!existingReview) {
-      return res.status(404).json({ message: 'Review not found' });
-    }
-
-    if (existingReview.userId.toString() !== userId && req.user.role !== 'Admin') {
-      return res.status(403).json({ message: 'You are not authorized to update this review' });
-    }
-
-    const updatedReview = await CourseReviewService.updateReview(userId, courseId, rating, review);
+    const updatedReview = await CourseReviewService.updateReview(userId, userRole, reviewId, rating, review );
     return res.status(200).json({ message: 'Review updated successfully', review: updatedReview });
   } catch (error) {
     return res.status(500).json({ message: 'Error updating review', error: error.message });
