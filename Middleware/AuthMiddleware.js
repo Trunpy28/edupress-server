@@ -1,11 +1,21 @@
 import jwt from 'jsonwebtoken';
 
 // Middleware to verify access token
-export const authMiddleware = (req, res, next) => {   
-    const token = req.headers.authorization?.split(' ')[1];
-    
+export const authMiddleware = (req, res, next) => {  
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+        return res.status(401).json({ message: 'Authorization header is missing' });
+    }
+
+    if (!authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Authorization header must start with "Bearer "' });
+    }
+
+    const token = authHeader.split(' ')[1];
+
     if (!token) {
-        return res.status(401).json({ message: 'No token provided' });
+        return res.status(401).json({ message: 'Token is missing from Authorization header' });
     }
 
     try {

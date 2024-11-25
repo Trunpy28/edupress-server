@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import User from '../Models/User.js';
 import { generateAccessToken, generateRefreshToken, validateRefreshToken } from './TokenService.js';
+import mongoose from 'mongoose';
 
 const register = async (userName, email, password) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -11,6 +12,10 @@ const register = async (userName, email, password) => {
     const existingUser = await User.findOne({ $or: [{ userName }, { email }] });
     if (existingUser) {
         throw new Error('User already exists with this username or email');
+    }
+
+    if(!password || (password.length < 6)) {
+        throw new Error('Password must be at least 6 characters long');
     }
 
     try {
@@ -108,7 +113,7 @@ const updateAvatar = async (id, avatarUrl) => {
     }
 }
 
-export const updateUserProfile = async (id, newInfo) => {
+const updateUserProfile = async (id, newInfo) => {
     try {      
         const updatedUser = await User.findByIdAndUpdate(id, newInfo, { new: true });
         return {
@@ -124,7 +129,7 @@ export const updateUserProfile = async (id, newInfo) => {
     }
 }
 
-const getUser = async () => {
+const getUsers = async () => {
     try {
         return await User.find();
     } catch (error) {
@@ -144,7 +149,11 @@ const deleteUser = async (id) => {
     }
 }
 
-const createAdmin = async (userName, email, password) => {
+const createUser = async (userName, email, name = '', password, role) => {
+    if(!userName) {
+        throw new Error('Username is required');
+    }
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         throw new Error('Invalid email format');
@@ -155,22 +164,72 @@ const createAdmin = async (userName, email, password) => {
         throw new Error('User already exists with this username or email');
     }
 
+    if(!password || (password.length < 6)) {
+        throw new Error('Password must be at least 6 characters long');
+    }
+
+    if(!role || !["User", "Admin"].includes(role)) {
+        throw new Error('Invalid role');
+    }
+
     try {
         const hashedPassword = await bcrypt.hash(password, 10);
-        const admin = new User({
+        const user = new User({
             userName,
             email,
+            name,
             passwordHash: hashedPassword,
-            role: 'Admin',
+            role,
         });
+
         await admin.save();
+
         return {
-            userName,
-            email,
+            userName: user.userName,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            avatarUrl: user.avatarUrl,
         };
     } catch (error) {
         throw new Error('Failed to create admin: ' + error.message);
     }
 };
 
-export default { register, login, loginUserName, refreshToken, getUserProfile, updateAvatar, updateUserProfile, getUser, deleteUser, createAdmin };
+const editUserProfile = async (userId, {name, role}) => {
+    if(!mongoose.Types.ObjectId.isValid(userId)) {
+        throw new Error('Invalid userId');
+    }
+    if(!role || !["User", "Admin"].includes(role)) {
+        throw new Error('Invalid role');
+    }
+
+    try {
+        const updatedUser = await User.findByIdAndUpdate(userId, {
+            name,
+            role,
+        }, {
+            new: true,
+        });
+        
+        return updatedUser;
+    }
+    catch (error) {
+        throw new Error('Error updating user profile: ' + error.message);
+    }
+};
+
+export default {
+    register,
+    loginUserName,
+    login,
+    refreshToken,
+    getUserProfile,
+    updateAvatar,
+    updateUserProfile,
+    getUsers,
+    deleteUser,
+    createUser,
+    createUser,
+    editUserProfile
+}

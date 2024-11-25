@@ -1,19 +1,23 @@
 import express from 'express';
-import { registerUser, loginUser, refreshUserToken, logoutUser, getUserProfile, updateAvatar, updateUserProfile } from '../Controllers/UserController.js';
+import userController from '../Controllers/UserController.js';
 import { authMiddleware } from '../Middleware/AuthMiddleware.js';
 import multer from 'multer';
+import { adminAuthMiddleware } from '../Middleware/AdminAuthMiddleware.js';
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-router.post('/register', registerUser);
-router.post('/login', loginUser);
-router.post('/logout', logoutUser);
-router.post('/refresh-token', refreshUserToken);
-router.get('/profile', authMiddleware, getUserProfile);
-router.put('/updateAvatar', authMiddleware,upload.single('avatarFile') , updateAvatar);
-router.put('/update', authMiddleware, updateUserProfile);
+router.post('/register', userController.registerUser);
+router.post('/login', userController.loginUser);
+router.post('/logout', userController.logoutUser);
+router.post('/refresh-token', userController.refreshUserToken);
+router.get('/profile', authMiddleware, userController.getUserProfile);
+router.put('/updateAvatar', authMiddleware,upload.single('avatarFile') , userController.updateAvatar);
+router.put('/update', authMiddleware, userController.updateUserProfile);
+router.get('/admin/get-all', authMiddleware, adminAuthMiddleware, userController.getUsers);
+router.post('/admin/create-user', authMiddleware, adminAuthMiddleware, userController.createUser);
+router.put('/admin/edit-profile', authMiddleware, adminAuthMiddleware, userController.editUserProfile);
 
 export default router;

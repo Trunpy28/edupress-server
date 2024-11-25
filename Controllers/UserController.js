@@ -1,7 +1,7 @@
 import UserService from '../Services/UserService.js';
 import CloudinaryService from '../Services/CloudinaryService.js';
 
-export const registerUser = async (req, res) => {
+const registerUser = async (req, res) => {
     try {
         const { userName, email, password, confirmPassword } = req.body;
         
@@ -10,13 +10,13 @@ export const registerUser = async (req, res) => {
         }
 
         const user = await UserService.register(userName, email, password);
-        res.status(201).json(user);
+        return res.status(201).json(user);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 };
 
-export const loginUser = async (req, res) => {
+const loginUser = async (req, res) => {
     try {
         const { userName, password } = req.body;
         const { accessToken, refreshToken } = await UserService.loginUserName(userName, password);
@@ -28,56 +28,56 @@ export const loginUser = async (req, res) => {
             sameSite: 'Strict',
         });
 
-        res.status(200).json({ accessToken });
+        return res.status(200).json({ accessToken });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 };
 
-export const logoutUser = (req, res) => {
+const logoutUser = (req, res) => {
     try {
         // Xóa cookie refresh token
         res.clearCookie('refresh_token');
 
-        res.status(200).json({ message: 'Logged out successfully' });
+        return res.status(200).json({ message: 'Logged out successfully' });
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        return res.status(500).json({ message: error.message });
     }
 };
 
-export const refreshUserToken = async (req, res) => {
+const refreshUserToken = async (req, res) => {
     try {
         
         const token = req.cookies.refresh_token; // Lấy refresh token từ cookie
         const newAccessToken = await UserService.refreshToken(token);
-        res.status(200).json(newAccessToken);
+        return res.status(200).json(newAccessToken);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 };
 
-export const getUserProfile = async (req, res) => {
+const getUserProfile = async (req, res) => {
     try {
         const userId = req.user.id;
         if (!userId) return res.status(401).json({ message: 'User does not exist' });
         const user = await UserService.getUserProfile(userId);
-        res.status(200).json(user);
+        return res.status(200).json(user);
     }
     catch (error) {
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 }
 
-export const getUser = async (req, res) => {
+const getUsers = async (req, res) => {
     try {
-        const users = await UserService.getUser();
-        res.status(200).json(users);
+        const users = await UserService.getUsers();
+        return res.status(200).json({ users });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 }
 
-export const updateAvatar = async (req, res) => {
+const updateAvatar = async (req, res) => {
     try {
         const userId = req.user.id;
         if (!userId) return res.status(401).json({ message: 'User does not exist' });
@@ -86,24 +86,24 @@ export const updateAvatar = async (req, res) => {
         const fileUrl = await CloudinaryService.uploadFile(avatarFile);
         await UserService.updateAvatar(userId, fileUrl);
         
-        res.status(200).json({ avatarUrl: fileUrl });
+        return res.status(200).json({ avatarUrl: fileUrl });
     }
     catch (error) {
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 }
 
-export const deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
     try {
         const id = req.params.id;
         const result = await UserService.deleteUser(id);
-        res.status(200).json(result);
+        return res.status(200).json(result);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 }
 
-export const updateUserProfile = async (req, res) => {
+const updateUserProfile = async (req, res) => {
     try {
         const userId = req.user.id;
         if (!userId) return res.status(401).json({ message: 'User does not exist' });
@@ -115,16 +115,48 @@ export const updateUserProfile = async (req, res) => {
         return res.status(200).json({updatedUser});
     }
     catch (error) {
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 }
 
-export const createAdmin = async (req, res) => {
-    const { userName, email, password } = req.body;
+const createUser = async (req, res) => {
+    const { userName, email, name, password, role } = req.body;
     try {
-        const newAdmin = await UserService.createAdmin(userName, email, password);
-        res.status(201).json({ message: 'Admin created successfully', admin: newAdmin });
+        const newUser = await UserService.createUser(userName, email, name, password, role);
+        return res.status(201).json({ message: 'User created successfully', newUser });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        return res.status(400).json({ message: error.message });
     }
 };
+
+const editUserProfile = async (req, res) => {
+    const userId = req.params.userId;
+    if (!userId) return res.status(400).json({ message: 'User ID is required' });
+
+    const { name, role } = req.body;
+
+    try {
+        const updatedUser = await UserService.editUserProfile(userId, {name, role});
+        return res.status(200).json({
+            message: 'User updated successfully',
+            user: updatedUser
+        }); 
+    }
+    catch (error) {
+        return res.status(400).json({ message: error.message });
+    }
+}
+
+export default {
+    registerUser,
+    loginUser,
+    logoutUser,
+    refreshUserToken,
+    getUserProfile,
+    getUsers,
+    updateAvatar,
+    deleteUser,
+    updateUserProfile,
+    createUser,
+    editUserProfile
+}
