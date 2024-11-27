@@ -95,9 +95,9 @@ const updateAvatar = async (req, res) => {
 
 const deleteUser = async (req, res) => {
     try {
-        const id = req.params.id;
-        const result = await UserService.deleteUser(id);
-        return res.status(200).json(result);
+        const userId = req.params.userId;
+        const result = await UserService.deleteUser(userId);
+        return res.status(200).json({...result, userId});
     } catch (error) {
         return res.status(400).json({ message: error.message });
     }
@@ -147,6 +147,16 @@ const editUserProfile = async (req, res) => {
     }
 }
 
+const searchUsers = async (req, res) => {
+    const query = req.query;
+    try {
+        const users = await UserService.searchUsers(query);
+        return res.status(200).json({ users });
+    } catch (error) {
+        return res.status(400).json({ message: error.message });
+    }
+}
+
 export default {
     registerUser,
     loginUser,
@@ -158,5 +168,6 @@ export default {
     deleteUser,
     updateUserProfile,
     createUser,
-    editUserProfile
+    editUserProfile,
+    searchUsers
 }

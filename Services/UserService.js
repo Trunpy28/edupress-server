@@ -2,6 +2,8 @@ import bcrypt from 'bcrypt';
 import User from '../Models/User.js';
 import { generateAccessToken, generateRefreshToken, validateRefreshToken } from './TokenService.js';
 import mongoose from 'mongoose';
+import CourseReview from '../Models/CourseReview.js';
+import RegisterCourseModel from '../Models/RegisterCourseModel.js';
 
 const register = async (userName, email, password) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -37,7 +39,7 @@ const register = async (userName, email, password) => {
 
 const loginUserName = async (userName, password) => {
     try {
-        const user = await User.findOne({ userName });
+        const user = await User.findOne({ userName }).select('+passwordHash');
         if (!user) throw new Error('User not found');
 
         const isValidPassword = await bcrypt.compare(password, user.passwordHash);
@@ -46,23 +48,6 @@ const loginUserName = async (userName, password) => {
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
         
-        return { accessToken, refreshToken, role: user.role };
-    } catch (error) {
-        throw new Error('Login failed: ' + error.message);
-    }
-};
-
-const login = async (email, password) => {
-    try {
-        const user = await User.findOne({ email });
-        if (!user) throw new Error('User not found');
-
-        const isValidPassword = await bcrypt.compare(password, user.passwordHash);
-        if (!isValidPassword) throw new Error('Invalid password');
-
-        const accessToken = generateAccessToken(user);
-        const refreshToken = generateRefreshToken(user);
-
         return { accessToken, refreshToken, role: user.role };
     } catch (error) {
         throw new Error('Login failed: ' + error.message);
@@ -137,14 +122,31 @@ const getUsers = async () => {
     }
 }
 
-const deleteUser = async (id) => {
+const deleteUser = async (userId) => {
+    if(!mongoose.Types.ObjectId.isValid(userId)){
+        throw new Error('Invalid userId');
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-        const deletedUser = await User.findByIdAndDelete(id);
+        await CourseReview.deleteMany({userId:  userId}, { session });
+        await RegisterCourseModel.deleteMany({userId: userId}, { session });
+
+        const deletedUser = await User.findByIdAndDelete(userId, { session });
+
+        await session.commitTransaction();
+        session.endSession();
+
         if (!deletedUser) {
             throw new Error('User not found');
         }
+
         return { message: 'User deleted successfully' };
     } catch (error) {
+        await session.abortTransaction();
+        await session.endSession();
         throw new Error('Error deleting user: ' + error.message);
     }
 }
@@ -219,10 +221,27 @@ const editUserProfile = async (userId, {name, role}) => {
     }
 };
 
+const searchUsers = async (query) => {
+    const { userName, name, email, role } = query;
+    const queryObject = {};
+
+    if (userName) queryObject.userName = new RegExp(userName, 'i');
+    if (name) queryObject.name = new RegExp(name, 'i');
+    if (email) queryObject.email = new RegExp(email, 'i');
+    if (role) queryObject.role = role;
+
+    try {
+        const users = await User.find(queryObject);
+        return users; 
+    }
+    catch (error) {
+        throw new Error('Error searching users:'+ error.message);
+    }
+}
+
 export default {
     register,
     loginUserName,
-    login,
     refreshToken,
     getUserProfile,
     updateAvatar,
@@ -231,5 +250,6 @@ export default {
     deleteUser,
     createUser,
     createUser,
-    editUserProfile
+    editUserProfile,
+    searchUsers
 }

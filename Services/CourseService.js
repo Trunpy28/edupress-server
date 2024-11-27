@@ -144,14 +144,13 @@ const createCourses = async (data) => {
     await Course.insertMany(courses, { session });
 
     await session.commitTransaction();
-    session.endSession();
+    await session.endSession();
 
     return courses;
   } catch (error) {
     await session.abortTransaction();
+    await session.endSession();
     throw new Error("Error creating courses: " + error.message);
-  } finally {
-    session.endSession();
   }
 };
 
@@ -180,18 +179,17 @@ const deleteCourse = async (id) => {
     await Course.findByIdAndDelete(id, { session });
 
     await session.commitTransaction();
-    session.endSession();
+    await session.endSession();
   } catch (error) {
     await session.abortTransaction();
-    session.endSession();
+    await session.endSession();
     throw new Error("Error deleting course and related data: " + error.message);
   }
 };
 
 const getConfirmedCoursesForUser = async (userId) => {
   try {
-    const confirmedCourseIds =
-      await RegisterCourseService.getConfirmedCoursesForUser(userId);
+    const confirmedCourseIds = await RegisterCourseService.getConfirmedCoursesForUser(userId);
     const courses = await Course.find({ _id: { $in: confirmedCourseIds } });
     return courses;
   } catch (error) {

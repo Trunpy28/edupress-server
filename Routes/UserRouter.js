@@ -19,5 +19,7 @@ router.put('/update', authMiddleware, userController.updateUserProfile);
 router.get('/admin/get-all', authMiddleware, adminAuthMiddleware, userController.getUsers);
 router.post('/admin/create-user', authMiddleware, adminAuthMiddleware, userController.createUser);
 router.put('/admin/edit-profile', authMiddleware, adminAuthMiddleware, userController.editUserProfile);
+router.delete('/admin/:userId', authMiddleware, adminAuthMiddleware, userController.deleteUser);
+router.get('/admin/search', authMiddleware, adminAuthMiddleware, userController.searchUsers);
 
 export default router;
