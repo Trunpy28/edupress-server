@@ -14,7 +14,7 @@ router.post('/login', userController.loginUser);
 router.post('/logout', userController.logoutUser);
 router.post('/refresh-token', userController.refreshUserToken);
 router.get('/profile', authMiddleware, userController.getUserProfile);
-router.put('/updateAvatar', authMiddleware,upload.single('avatarFile') , userController.updateAvatar);
+router.put('/updateAvatar', authMiddleware, upload.single('avatarFile'), userController.updateAvatar);
 router.put('/update', authMiddleware, userController.updateUserProfile);
 router.get('/admin/get-all', authMiddleware, adminAuthMiddleware, userController.getUsers);
 router.post('/admin/create-user', authMiddleware, adminAuthMiddleware, userController.createUser);

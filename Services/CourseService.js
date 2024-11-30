@@ -104,6 +104,10 @@ const getCourses = async (queries) => {
 };
 
 const getCourseById = async (id) => {
+   if (!mongoose.Types.ObjectId.isValid(id)) {
+      throw new Error("Invalid courseId");
+    }
+    
   try {
     return await Course.findById(id);
   } catch (error) {
@@ -120,9 +124,26 @@ const getCourseByUrlSlug = async (urlSlug) => {
 };
 
 const createCourse = async (data) => {
+  let { name, category, level, price, discountPrice, image, description = '' } = data;
+
+  if(!name || !category || !level || !price || !image) {
+    throw new Error("Missing required fields");
+  }
+
+  price = Number.parseFloat(price);
+  discountPrice = Number.parseFloat(discountPrice);
+
+  if(price === NaN || price < 0){
+    throw new Error("Invalid price or discount price");
+  }
+
+  if(discountPrice !== NaN && discountPrice > price) {
+    throw new Error("Discount price cannot be greater than price");
+  }
+
   try {
-    const urlSlug = await generateUniqueSlug(data.name);
-    const course = new Course({ ...data, urlSlug });
+    const urlSlug = await generateUniqueSlug(name);
+    const course = new Course({ name, category, level, price, discountPrice, image, description, urlSlug });
     return await course.save();
   } catch (error) {
     throw new Error("Error creating course: " + error.message);
@@ -154,15 +175,34 @@ const createCourses = async (data) => {
   }
 };
 
-const updateCourse = async (id, data) => {
+const updateCourse = async (courseId, data) => {
+  if (!mongoose.Types.ObjectId.isValid(courseId)) {
+    throw new Error("Invalid courseId");
+  }
+
+  let { name, category, level, price, discountPrice, image, description = '' } = data;
+
+  if(!name || !category || !level || !price || !image) {
+    throw new Error("Missing required fields");
+  }
+
+  price = Number.parseFloat(price);
+  discountPrice = Number.parseFloat(discountPrice);
+
+  if(price === NaN || price < 0){
+    throw new Error("Invalid price or discount price");
+  }
+
+  if(discountPrice !== NaN && discountPrice > price) {
+    throw new Error("Discount price cannot be greater than price");
+  }
+
   try {
-    let urlSlug;
-    if (data.name) {
-      urlSlug = await generateUniqueSlug(data.name);
-    }
+    const urlSlug = await generateUniqueSlug(name);
+
     return await Course.findByIdAndUpdate(
       id,
-      { ...data, ...(urlSlug ? { urlSlug } : {}) },
+      { name, category, level, price, discountPrice, image, description, urlSlug },
       { new: true }
     );
   } catch (error) {
@@ -170,7 +210,11 @@ const updateCourse = async (id, data) => {
   }
 };
 
-const deleteCourse = async (id) => {
+const deleteCourse = async (courseId) => {
+  if(!mongoose.Types.ObjectId.isValid(courseId)){
+    throw new Error("Invalid courseId");
+  }
+
   const session = await mongoose.startSession();
   session.startTransaction();
   try {

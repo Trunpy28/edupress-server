@@ -1,6 +1,8 @@
+import CloudinaryService from '../Services/CloudinaryService.js';
 import CourseService from '../Services/CourseService.js';
+import RegisterCourseService from '../Services/RegisterCourseService.js';
 
-export const getCourses = async (req, res) => {  
+const getCourses = async (req, res) => {  
   try {  
     const result = await CourseService.getCourses(req.query);
     return res.status(200).json(result);
@@ -9,9 +11,9 @@ export const getCourses = async (req, res) => {
   }
 };
 
-export const getCourseById = async (req, res) => {
+const getCourseById = async (req, res) => {
   try {
-    const course = await CourseService.getCourseById(req.params.id);
+    const course = await CourseService.getCourseById(req.params.courseId);
     if (!course) {
       return res.status(404).json({ message: 'Course not found' });
     }
@@ -21,7 +23,7 @@ export const getCourseById = async (req, res) => {
   }
 };
 
-export const getCourseByUrlSlug = async (req, res) => {
+const getCourseByUrlSlug = async (req, res) => {
   try {
     const course = await CourseService.getCourseByUrlSlug(req.params.urlSlug);
     if (!course) {
@@ -33,21 +35,22 @@ export const getCourseByUrlSlug = async (req, res) => {
   }
 };
 
-export const createCourse = async (req, res) => {
+const createCourse = async (req, res) => {
   try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'User not logged in' });
+    if(!req.file) {
+      return res.status(400).json({ message: 'Image is required' });
     }
-    if(req.user.role !== 'Admin') return res.status(403).json({ message: 'You are not allowed to create course' });
+    
+    const imageUrl = await CloudinaryService.uploadFile(req.file);
 
-    const newCourse = await CourseService.createCourse(req.body);
+    const newCourse = await CourseService.createCourse({...req.body, image: imageUrl});
     return res.status(201).json(newCourse);
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-export const createCourseMany = async (req, res) => {
+const createCourseMany = async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: 'User not logged in' });
@@ -61,9 +64,14 @@ export const createCourseMany = async (req, res) => {
   }
 }
 
-export const updateCourse = async (req, res) => {
+const updateCourse = async (req, res) => {
+  const courseId = req.params.courseId;
+  if(!courseId) {
+    return ré.status(400).json({ message: 'CourseId not found' });
+  }
+
   try {
-    const updatedCourse = await CourseService.updateCourse(req.params.id, req.body);
+    const updatedCourse = await CourseService.updateCourse(courseId, req.body);
     if (!updatedCourse) {
       return res.status(404).json({ message: 'Course not found' });
     }
@@ -73,9 +81,14 @@ export const updateCourse = async (req, res) => {
   }
 };
 
-export const deleteCourse = async (req, res) => {
+const deleteCourse = async (req, res) => {
+  const courseId = req.params.courseId;
+  if(!courseId) {
+    return res.status(400).json({ message: 'CourseId not found' });
+  }
+
   try {
-    const deletedCourse = await CourseService.deleteCourse(req.params.id);
+    const deletedCourse = await CourseService.deleteCourse(courseId);
     if (!deletedCourse) {
       return res.status(404).json({ message: 'Course not found' });
     }
@@ -85,7 +98,7 @@ export const deleteCourse = async (req, res) => {
   }
 };
 
-export const getConfirmedCoursesForUser = async (req, res) => {
+const getConfirmedCoursesForUser = async (req, res) => {
   if (!req.user) {
     return res.status(401).json({ message: 'User not logged in' });
   }
@@ -95,4 +108,30 @@ export const getConfirmedCoursesForUser = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
+}
+
+const getRegisteredUsers = async (req, res) => {
+  const courseId = req.params.courseId;
+  if(!courseId) {
+    return res.status(400).json({ message: "CourseId not found"});
+  }
+
+  try {
+    const registeredUsers = await RegisterCourseService.getRegisteredUsers(courseId);
+    return res.status(200).json({count: registeredUsers.length, registeredUsers});
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
+
+export default {
+  getCourses,
+  getCourseById,
+  getCourseByUrlSlug,
+  createCourse,
+  createCourseMany,
+  updateCourse,
+  deleteCourse,
+  getConfirmedCoursesForUser,
+  getRegisteredUsers
 }
