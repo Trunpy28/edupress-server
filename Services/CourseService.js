@@ -28,17 +28,18 @@ const generateUniqueSlug = async (name) => {
 
 const getCourses = async (queries) => {
   let { search, sort, category, price, level, page = 1, limit = 10 } = queries;
-
+  
   if (typeof page === "string") {
-    page = parseInt(page);
+    page = Number.parseInt(page);
     if (isNaN(page) || page < 1) page = 1;
   }
 
   if (typeof limit === "string") {
-    limit = parseInt(limit);
-    if (isNaN(limit) || limit < 1 || limit > 100) limit = 10;
+    limit = Number(limit);
+    if (isNaN(limit) || limit < 1) limit = 10;
   }
-
+  console.log(limit);
+  
   try {
     let query = Course.find();
     if (search) {

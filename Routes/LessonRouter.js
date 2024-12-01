@@ -1,14 +1,14 @@
 import express from 'express';
-import { createLesson, getAllLessons, getLessonById, updateLesson, deleteLesson, getLessonsByCourse } from '../Controllers/LessonController.js';
+import LessonController from '../Controllers/LessonController.js';
 import { authMiddleware, identifyUserMiddleware } from '../Middleware/AuthMiddleware.js';
+import { adminAuthMiddleware } from '../Middleware/AdminAuthMiddleware.js';
 
 const router = express.Router();
 
-router.post('/', authMiddleware, createLesson);
-router.get('/', getAllLessons);
-router.get('/:id', getLessonById);
-router.put('/:id', authMiddleware, updateLesson);
-router.delete('/:id', authMiddleware, deleteLesson);
-router.get('/lessons-by-course/:courseId', identifyUserMiddleware, getLessonsByCourse);
+router.get('/lessons-by-course/:courseId', identifyUserMiddleware, LessonController.getLessonsByCourse);
+router.post('/admin/create', authMiddleware, adminAuthMiddleware, LessonController.createLesson);
+router.get('/admin/details/:id', authMiddleware, adminAuthMiddleware, LessonController.getLessonById);
+router.put('/admin/update/:id', authMiddleware, adminAuthMiddleware, LessonController.updateLesson);
+router.delete('/delete/:id', authMiddleware, adminAuthMiddleware, LessonController.deleteLesson);
 
 export default router;
