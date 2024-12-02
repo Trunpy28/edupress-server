@@ -155,7 +155,7 @@ const createUser = async (userName, email, name = '', password, role) => {
     if(!userName) {
         throw new Error('Username is required');
     }
-
+    
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
         throw new Error('Invalid email format');
@@ -183,9 +183,7 @@ const createUser = async (userName, email, name = '', password, role) => {
             passwordHash: hashedPassword,
             role,
         });
-
-        await admin.save();
-
+        await User.create(user);
         return {
             userName: user.userName,
             email: user.email,
