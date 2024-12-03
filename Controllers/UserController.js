@@ -130,7 +130,7 @@ const createUser = async (req, res) => {
 };
 
 const editUserProfile = async (req, res) => {
-    const userId = req.params.userId;
+    const userId = req.body._id;
     if (!userId) return res.status(400).json({ message: 'User ID is required' });
 
     const { name, role } = req.body;
