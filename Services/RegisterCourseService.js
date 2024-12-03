@@ -1,9 +1,10 @@
+import mongoose from "mongoose";
 import RegisterCourseModel from "../Models/RegisterCourseModel.js";
 
 const getAllRegistrations = async () => {
   try {
     return await RegisterCourseModel.find()
-      .populate("userId", "userName")
+      .populate("userId", "_id userName email name")
       .populate("courseId", "name");
   } catch (error) {
     throw new Error("Error fetching registrations: " + error.message);
@@ -11,6 +12,10 @@ const getAllRegistrations = async () => {
 };
 
 const updateRegistrationStatus = async (id, status) => {
+  if(!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error("Invalid registration id");
+  }
+
   try {
     const registration = await RegisterCourseModel.findById(id);
     if (!registration) throw new Error("Registration not found");

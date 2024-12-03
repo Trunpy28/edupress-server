@@ -1,11 +1,12 @@
 import express from 'express';
-import { getAllRegistrations, approveRegistration, createRegistration, getRegisteredCourse } from '../Controllers/RegisterCourseController.js';
+import RegisterCourseController from '../Controllers/RegisterCourseController.js';
 import { authMiddleware } from '../Middleware/AuthMiddleware.js';
+import { adminAuthMiddleware } from '../Middleware/AdminAuthMiddleware.js';
 const router = express.Router();
 
-router.get('/registrations', getAllRegistrations);
-router.put('/registrations/:id', authMiddleware, approveRegistration);
-router.post('/register', authMiddleware, createRegistration);
-router.get('/get-registration/:courseId', authMiddleware, getRegisteredCourse);
+router.get('/admin/registrations', authMiddleware, adminAuthMiddleware, RegisterCourseController.getAllRegistrations);
+router.patch('/admin/registrations/:id', authMiddleware, adminAuthMiddleware, RegisterCourseController.updateRegistrationStatus);
+router.post('/register', authMiddleware, RegisterCourseController.createRegistration);
+router.get('/get-registration/:courseId', authMiddleware, RegisterCourseController.getRegisteredCourse);
 
 export default router;
