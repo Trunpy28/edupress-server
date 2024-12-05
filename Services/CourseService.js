@@ -38,7 +38,6 @@ const getCourses = async (queries) => {
     limit = Number(limit);
     if (isNaN(limit) || limit < 1) limit = 10;
   }
-  console.log(limit);
   
   try {
     let query = Course.find();

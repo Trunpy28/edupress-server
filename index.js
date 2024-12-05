@@ -1,26 +1,28 @@
-import express from 'express';
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import routes from './Routes/index.js';
+import express from "express";
+import mongoose from "mongoose";
+import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import routes from "./Routes/index.js";
 
-const allowedOrigins = ['http://localhost:3001'];
+const allowedOrigins = ["http://localhost:3001"];
 
 dotenv.config();
 
 const app = express();
 
-app.use(cors({
-  origin: function (origin, callback) {
+app.use(
+  cors({
+    origin: function (origin, callback) {
       if (allowedOrigins.includes(origin) || !origin) {
-          callback(null, true);
+        callback(null, true);
       } else {
-          callback(new Error('Not allowed by CORS'));
+        callback(new Error("Not allowed by CORS"));
       }
-  },
-  credentials: true,
-}));
+    },
+    credentials: true,
+  })
+);
 
 app.use(cookieParser());
 app.use(express.json());
@@ -31,9 +33,8 @@ routes(app);
 try {
   await mongoose.connect(process.env.MONGODB_URI);
   console.log("Connected to Database successfully!");
-}
-catch(error) {
-  console.error("Couldn't connect to Database: "+ error.message);
+} catch (error) {
+  console.error("Couldn't connect to Database: " + error.message);
   process.exit(1);
 }
 

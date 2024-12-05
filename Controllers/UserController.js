@@ -157,6 +157,101 @@ const searchUsers = async (req, res) => {
     }
 }
 
+const forgotPassword = async (req,res) => {
+    try {
+        const email = req.params.email;
+        const regex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
+        const ischeckEmail = regex.test(email);
+        if(!email || !ischeckEmail) return res.status(404).json({
+            message: "Email is invalid!"
+        });
+
+        await UserService.forgotPassword(email);
+        return res.status(200).json({
+            message: "Mã xác nhận đã gửi về email của bạn. Vui lòng kiểm tra hộp thư đến và xác nhận mã!"
+        });
+    }
+    catch(error) {
+        return res.status(404).json({
+            message: error.message
+        })
+    }
+}
+
+const verifyResetPasswordToken = async (req,res) => {
+    try {
+        const { email } = req.params;
+        const token = req.body.OTP;
+        const tokenRegex = /^\d{6}$/;
+        if(!email || !token || !tokenRegex.test(token)) {
+            return res.status(400).json({
+                message: "Token không hợp lệ!"
+            })
+        }
+
+        const verify = await UserService.verifyResetPasswordToken(email, token);
+        if(!verify) {
+            return res.status(400).json({
+                message: "OTP không hợp lệ!"
+            })
+        }
+        return res.status(200).json({
+            message: "OTP hợp lệ!"
+        })
+    }catch(error) {
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
+const resetPassword = async (req,res) => {
+    try {
+        const { email, verify_code: token, password } = req.body;
+        if(!password || !email || !token) {
+            return res.status(400).json({
+                message: "Thiếu thông tin cần thiết!"
+            })
+        }
+
+        await UserService.resetPassword(email, token, password);
+        return res.status(200).json({
+            message: "Change password successfully!"
+        })
+    }
+    catch(error) {
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
+const changePassword = async (req, res) => {
+    const userId = req.user.id;
+    if(!userId) return res.status(404).json({
+        message: "User ID is required"
+    })
+
+    const { currentPassword, newPassword } = req.body;
+    if(!currentPassword || !newPassword) {
+        return res.status(400).json({
+            message: "Current password or new password is required!"
+        })
+    }
+
+    try {
+        await UserService.changePassword(userId, currentPassword, newPassword);
+        return res.status(200).json({
+            message: "Change password successfully!"
+        })
+    }
+    catch(error) {
+        return res.status(400).json({
+            message: error.message
+        })
+    }
+}
+
 export default {
     registerUser,
     loginUser,
@@ -169,5 +264,9 @@ export default {
     updateUserProfile,
     createUser,
     editUserProfile,
-    searchUsers
+    searchUsers,
+    forgotPassword,
+    verifyResetPasswordToken,
+    resetPassword,
+    changePassword
 }
