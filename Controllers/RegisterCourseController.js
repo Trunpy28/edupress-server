@@ -1,6 +1,6 @@
 import RegisterCourseService from '../Services/RegisterCourseService.js';
 
-export const getAllRegistrations = async (req, res) => {
+const getAllRegistrations = async (req, res) => {
     try {
         const registrations = await RegisterCourseService.getAllRegistrations();
         return res.status(200).json(registrations);
@@ -9,7 +9,7 @@ export const getAllRegistrations = async (req, res) => {
     }
 };
 
-export const approveRegistration = async (req, res) => {
+const updateRegistrationStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;  
 
@@ -25,7 +25,7 @@ export const approveRegistration = async (req, res) => {
     }
 };
 
-export const createRegistration = async (req, res) => {
+const createRegistration = async (req, res) => {
     const userId = req.user.id;
     const { courseId } = req.body;
     if (!userId) return res.status(401).json({ message: 'User does not exist' });
@@ -38,7 +38,7 @@ export const createRegistration = async (req, res) => {
     }
 }
 
-export const getRegisteredCourse = async (req, res) => {
+const getRegisteredCourse = async (req, res) => {
     const userId = req.user.id;
     
     const { courseId } = req.params;
@@ -51,3 +51,10 @@ export const getRegisteredCourse = async (req, res) => {
         return res.status(500).json({ message: error.message });
     }
 }
+
+export default {
+    getAllRegistrations,
+    updateRegistrationStatus,
+    createRegistration,
+    getRegisteredCourse,
+};

@@ -1,9 +1,10 @@
+import mongoose from "mongoose";
 import RegisterCourseModel from "../Models/RegisterCourseModel.js";
 
 const getAllRegistrations = async () => {
   try {
     return await RegisterCourseModel.find()
-      .populate("userId", "userName")
+      .populate("userId", "_id userName email name")
       .populate("courseId", "name");
   } catch (error) {
     throw new Error("Error fetching registrations: " + error.message);
@@ -11,14 +12,17 @@ const getAllRegistrations = async () => {
 };
 
 const updateRegistrationStatus = async (id, status) => {
+  if(!mongoose.Types.ObjectId.isValid(id)) {
+    throw new Error("Invalid registration id");
+  }
+
   try {
     const registration = await RegisterCourseModel.findById(id);
     if (!registration) throw new Error("Registration not found");
 
     registration.status = status;
-    await registration.save();
 
-    return registration;
+    return await registration.save();
   } catch (error) {
     throw new Error("Error updating registration status: " + error.message);
   }
@@ -41,6 +45,14 @@ const createRegistration = async (userId, courseId) => {
 const getRegisteredCourse = async (userId, courseId) => {
   try {
     return await RegisterCourseModel.findOne({ userId, courseId });
+  } catch (error) {
+    throw new Error("Error fetching registration: " + error.message);
+  }
+};
+
+const getRegisteredCourseById = async (registerId) => {
+  try {
+    return await RegisterCourseModel.findById(registerId);
   } catch (error) {
     throw new Error("Error fetching registration: " + error.message);
   }
@@ -76,4 +88,5 @@ export default {
   getRegisteredCourse,
   getConfirmedCoursesForUser,
   getRegisteredUsers,
+  getRegisteredCourseById
 };

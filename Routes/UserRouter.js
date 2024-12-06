@@ -21,5 +21,9 @@ router.post('/admin/create-user', authMiddleware, adminAuthMiddleware, userContr
 router.put('/admin/edit-profile', authMiddleware, adminAuthMiddleware, userController.editUserProfile);
 router.delete('/admin/:userId', authMiddleware, adminAuthMiddleware, userController.deleteUser);
 router.get('/admin/search', authMiddleware, adminAuthMiddleware, userController.searchUsers);
+router.post('/forgot-password/:email',userController.forgotPassword);
+router.post('/verify-reset-password-token/:email', userController.verifyResetPasswordToken);
+router.patch('/reset-password', userController.resetPassword);
+router.patch('/change-password', authMiddleware, userController.changePassword);
 
 export default router;
