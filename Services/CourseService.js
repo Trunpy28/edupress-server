@@ -201,7 +201,7 @@ const updateCourse = async (courseId, data) => {
     const urlSlug = await generateUniqueSlug(name);
 
     return await Course.findByIdAndUpdate(
-      id,
+      courseId,
       { name, category, level, price, discountPrice, image, description, urlSlug },
       { new: true }
     );
@@ -218,9 +218,9 @@ const deleteCourse = async (courseId) => {
   const session = await mongoose.startSession();
   session.startTransaction();
   try {
-    await Lesson.deleteMany({ courseId: id }, { session });
-    await RegisterCourseModel.deleteMany({ courseId: id }, { session });
-    await Course.findByIdAndDelete(id, { session });
+    await Lesson.deleteMany({ courseId }, { session });
+    await RegisterCourseModel.deleteMany({ courseId }, { session });
+    await Course.findByIdAndDelete(courseId, { session });
 
     await session.commitTransaction();
     await session.endSession();

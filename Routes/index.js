@@ -1,8 +1,9 @@
-import UserRouters from '../Routes/UserRouter.js'
-import CourseRouters from '../Routes/CourseRouter.js'
-import CourseReviewRouters from '../Routes/CourseReviewRouter.js'
-import RegisterCourseRouter from '../Routes/RegisterCourseRouter.js'
-import LessonRouter from '../Routes/LessonRouter.js'
+import UserRouters from './UserRouter.js'
+import CourseRouters from './CourseRouter.js'
+import CourseReviewRouters from './CourseReviewRouter.js'
+import RegisterCourseRouter from './RegisterCourseRouter.js'
+import LessonRouter from './LessonRouter.js'
+import PaypalRouter from './PaypalRouter.js'
 
 const routes = (app) => {
     app.use('/api/user', UserRouters);
@@ -10,6 +11,7 @@ const routes = (app) => {
     app.use('/api/course-review', CourseReviewRouters);
     app.use('/api/register-course', RegisterCourseRouter);
     app.use('/api/lesson', LessonRouter);
+    app.use('/api/paypal', PaypalRouter);
 }
 
 export default routes;

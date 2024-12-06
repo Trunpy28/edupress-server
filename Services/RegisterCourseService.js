@@ -21,9 +21,8 @@ const updateRegistrationStatus = async (id, status) => {
     if (!registration) throw new Error("Registration not found");
 
     registration.status = status;
-    await registration.save();
 
-    return registration;
+    return await registration.save();
   } catch (error) {
     throw new Error("Error updating registration status: " + error.message);
   }
@@ -46,6 +45,14 @@ const createRegistration = async (userId, courseId) => {
 const getRegisteredCourse = async (userId, courseId) => {
   try {
     return await RegisterCourseModel.findOne({ userId, courseId });
+  } catch (error) {
+    throw new Error("Error fetching registration: " + error.message);
+  }
+};
+
+const getRegisteredCourseById = async (registerId) => {
+  try {
+    return await RegisterCourseModel.findById(registerId);
   } catch (error) {
     throw new Error("Error fetching registration: " + error.message);
   }
@@ -81,4 +88,5 @@ export default {
   getRegisteredCourse,
   getConfirmedCoursesForUser,
   getRegisteredUsers,
+  getRegisteredCourseById
 };
