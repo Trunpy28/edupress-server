@@ -36,7 +36,7 @@ const createRegistration = async (userId, courseId) => {
     });
     if (existingRegistration) throw new Error("Registration already exists");
     const registration = new RegisterCourseModel({ userId, courseId });
-    await registration.save();
+    return await registration.save();
   } catch (error) {
     throw new Error("Error creating registration: " + error.message);
   }

@@ -75,7 +75,7 @@ const createOrder = async (req, res) => {
  */
 const captureOrder = async (req, res) => {
   try {
-    const { registerId: registrationId } = req.params; // Lấy orderId từ URL
+    const { registrationId } = req.params; // Lấy orderId từ URL
     const { paymentId } = req.body;
 
     if (!registrationId || !paymentId) {
@@ -126,7 +126,7 @@ const captureOrder = async (req, res) => {
 
         return res.status(200).json({
           message: "Payment successful and the order has been updated",
-          order: updateResult.data,
+          registration: updateResult,
         });
 
       case "PENDING":

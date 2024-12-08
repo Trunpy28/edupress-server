@@ -67,11 +67,17 @@ const createCourseMany = async (req, res) => {
 const updateCourse = async (req, res) => {
   const courseId = req.params.courseId;
   if(!courseId) {
-    return ré.status(400).json({ message: 'CourseId not found' });
+    return res.status(400).json({ message: 'CourseId not found' });
   }
 
+  if(!req.file) {
+    return res.status(400).json({ message: 'Image is required' });
+  }
+  
+  const imageUrl = await CloudinaryService.uploadFile(req.file);
+
   try {
-    const updatedCourse = await CourseService.updateCourse(courseId, req.body);
+    const updatedCourse = await CourseService.updateCourse(courseId, {...req.body, image: imageUrl});
     if (!updatedCourse) {
       return res.status(404).json({ message: 'Course not found' });
     }
