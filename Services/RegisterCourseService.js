@@ -5,7 +5,8 @@ const getAllRegistrations = async () => {
   try {
     return await RegisterCourseModel.find()
       .populate("userId", "_id userName email name")
-      .populate("courseId", "name");
+      .populate("courseId", "name")
+      .sort({ createdAt: "descending"});
   } catch (error) {
     throw new Error("Error fetching registrations: " + error.message);
   }

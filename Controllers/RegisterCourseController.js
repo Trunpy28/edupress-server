@@ -31,7 +31,6 @@ const createRegistration = async (req, res) => {
     if (!userId) return res.status(401).json({ message: 'User does not exist' });
     try {
         const registration = await RegisterCourseService.createRegistration(userId, courseId);
-        console.log(registration);
         
         return res.status(201).json(registration);
     }

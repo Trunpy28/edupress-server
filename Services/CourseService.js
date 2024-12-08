@@ -3,6 +3,7 @@ import Lesson from "../Models/LessonModel.js";
 import mongoose from "mongoose";
 import slugify from "slugify";
 import RegisterCourseService from "./RegisterCourseService.js";
+import RegisterCourseModel from "../Models/RegisterCourseModel.js";
 
 const generateUniqueSlug = async (name) => {
   let slug = slugify(name, {
@@ -220,10 +221,11 @@ const deleteCourse = async (courseId) => {
   try {
     await Lesson.deleteMany({ courseId }, { session });
     await RegisterCourseModel.deleteMany({ courseId }, { session });
-    await Course.findByIdAndDelete(courseId, { session });
+    const deletedCourse = await Course.findByIdAndDelete(courseId, { session });
 
     await session.commitTransaction();
     await session.endSession();
+    return deletedCourse;
   } catch (error) {
     await session.abortTransaction();
     await session.endSession();
