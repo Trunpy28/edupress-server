@@ -252,6 +252,15 @@ const changePassword = async (req, res) => {
     }
 }
 
+const getTotalUsers = async (req, res) => {
+    try {
+        const totalUsers = await UserService.getTotalUsers();
+        return res.status(200).json({ totalUsers });
+    } catch (error) {
+        return res.status(400).json({ message: error.message });
+    }
+}
+
 export default {
     registerUser,
     loginUser,
@@ -268,5 +277,6 @@ export default {
     forgotPassword,
     verifyResetPasswordToken,
     resetPassword,
-    changePassword
+    changePassword,
+    getTotalUsers,
 }

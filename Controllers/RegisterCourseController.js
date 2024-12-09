@@ -53,9 +53,19 @@ const getRegisteredCourse = async (req, res) => {
     }
 }
 
+const getTotalRegistrations = async (req, res) => {
+    try {
+        const totalRegistrations = await RegisterCourseService.getTotalRegistrations();
+        return res.status(200).json({ totalRegistrations });
+    } catch (error) {
+        return res.status(400).json({ message: error.message });
+    }
+}
+
 export default {
     getAllRegistrations,
     updateRegistrationStatus,
     createRegistration,
     getRegisteredCourse,
+    getTotalRegistrations,
 };

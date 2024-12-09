@@ -42,10 +42,15 @@ const deleteReview = async (reviewId) => {
   return await CourseReview.findByIdAndDelete(reviewId);
 };
 
+const getTotalReviews = async () => {
+  return await CourseReview.countDocuments();
+}
+
 export default {
   createReview,
   updateReview,
   getReviewsByCourse,
   getReview,
-  deleteReview
+  deleteReview,
+  getTotalReviews
 };

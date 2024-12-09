@@ -130,6 +130,15 @@ const getRegisteredUsers = async (req, res) => {
   }
 }
 
+const getTotalCourses = async (req, res) => {
+  try {
+    const totalCourses = await CourseService.getTotalCourses();
+    return res.status(200).json({ totalCourses });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+}
+
 export default {
   getCourses,
   getCourseById,
@@ -139,5 +148,6 @@ export default {
   updateCourse,
   deleteCourse,
   getConfirmedCoursesForUser,
-  getRegisteredUsers
+  getRegisteredUsers,
+  getTotalCourses
 }

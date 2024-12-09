@@ -245,6 +245,14 @@ const getConfirmedCoursesForUser = async (userId) => {
   }
 };
 
+const getTotalCourses = async () => {
+  try {
+    return await Course.countDocuments();
+  } catch (error) {
+    throw new Error("Error fetching total courses: " + error.message);
+  }
+}
+
 export default {
   getCourses,
   getCourseById,
@@ -254,4 +262,5 @@ export default {
   updateCourse,
   deleteCourse,
   getConfirmedCoursesForUser,
+  getTotalCourses,
 };

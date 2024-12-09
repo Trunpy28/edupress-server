@@ -35,7 +35,8 @@ const createRegistration = async (userId, courseId) => {
       userId,
       courseId,
     });
-    if (existingRegistration) throw new Error("Registration already exists");
+    if (existingRegistration && ["Pending", "Confirmed"].includes(existingRegistration.status)) throw new Error("Registration already exists");
+    
     const registration = new RegisterCourseModel({ userId, courseId });
     return await registration.save();
   } catch (error) {
@@ -45,7 +46,7 @@ const createRegistration = async (userId, courseId) => {
 
 const getRegisteredCourse = async (userId, courseId) => {
   try {
-    return await RegisterCourseModel.findOne({ userId, courseId });
+    return (await RegisterCourseModel.find({ userId, courseId }).sort({ updatedAt: "descending"})).at(0);
   } catch (error) {
     throw new Error("Error fetching registration: " + error.message);
   }
@@ -82,6 +83,14 @@ const getRegisteredUsers = async (courseId) => {
   return users;
 };
 
+const getTotalRegistrations = async () => {
+  try {
+    return await RegisterCourseModel.countDocuments();
+  } catch (error) {
+    throw new Error("Error fetching total registrations: " + error.message);
+  }
+}
+
 export default {
   getAllRegistrations,
   updateRegistrationStatus,
@@ -89,5 +98,6 @@ export default {
   getRegisteredCourse,
   getConfirmedCoursesForUser,
   getRegisteredUsers,
-  getRegisteredCourseById
+  getRegisteredCourseById,
+  getTotalRegistrations,
 };

@@ -17,5 +17,6 @@ router.get('/admin/course/:courseId', authMiddleware, adminAuthMiddleware, cours
 router.patch('/admin/:courseId', authMiddleware, adminAuthMiddleware, upload.single('image'), courseController.updateCourse);
 router.delete('/admin/:courseId', authMiddleware, adminAuthMiddleware, courseController.deleteCourse);
 router.get('/admin/:courseId/registered-users', authMiddleware, adminAuthMiddleware, courseController.getRegisteredUsers);
+router.get('/admin/get-total-courses', authMiddleware, adminAuthMiddleware, courseController.getTotalCourses);
 
 export default router;
