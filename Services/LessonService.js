@@ -14,6 +14,12 @@ const createLesson = async (data) => {
         throw new Error('Invalid order of lesson in course');
     }
     
+    const checkOrderLesson = await Lesson.findOne({ order: order, courseId: courseId });
+
+    if(checkOrderLesson) {
+        throw new Error('Lesson with the same order already exists in this course');
+    }
+    
     try {
         const lesson = new Lesson({
             title,

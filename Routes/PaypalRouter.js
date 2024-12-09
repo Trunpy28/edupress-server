@@ -4,10 +4,10 @@ import paypalController from "../controllers/PaypalController.js";
 import { authMiddleware } from '../Middleware/AuthMiddleware.js';
 
 
-// Route tạo order
+// Route tạo payment
 router.post("/create-order", authMiddleware, paypalController.createOrder);
 
-// Route xác nhận order
-router.post("/capture-order/:orderId", authMiddleware, paypalController.captureOrder);
+// Route xác nhận registration
+router.post("/capture-order/:registrationId", authMiddleware, paypalController.captureOrder);
 
 export default router;

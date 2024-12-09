@@ -12,9 +12,9 @@ router.get('/get-courses', courseController.getCourses);
 router.get('/detail/url/:urlSlug', courseController.getCourseByUrlSlug);
 router.post('/create-many', authMiddleware, courseController.createCourseMany);
 router.get('/my-courses', authMiddleware, courseController.getConfirmedCoursesForUser)
-router.post('/admin/create', authMiddleware, adminAuthMiddleware, upload.single('courseImage'), courseController.createCourse);
+router.post('/admin/create', authMiddleware, adminAuthMiddleware, upload.single('image'), courseController.createCourse);
 router.get('/admin/course/:courseId', authMiddleware, adminAuthMiddleware, courseController.getCourseById);
-router.patch('/admin/:courseId', authMiddleware, adminAuthMiddleware, upload.single('courseImage'), courseController.updateCourse);
+router.patch('/admin/:courseId', authMiddleware, adminAuthMiddleware, upload.single('image'), courseController.updateCourse);
 router.delete('/admin/:courseId', authMiddleware, adminAuthMiddleware, courseController.deleteCourse);
 router.get('/admin/:courseId/registered-users', authMiddleware, adminAuthMiddleware, courseController.getRegisteredUsers);
 
