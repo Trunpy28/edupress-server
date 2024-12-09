@@ -319,6 +319,15 @@ const changePassword = async (userId, currentPassword, newPassword) => {
   }
 };
 
+const getTotalUsers = async () => {
+  try {
+    const totalUsers = await User.countDocuments();
+    return totalUsers;
+  } catch (error) {
+    throw new Error("Error getting total users: " + error.message);
+  }
+}
+
 export default {
   register,
   loginUserName,
@@ -335,5 +344,6 @@ export default {
   forgotPassword,
   verifyResetPasswordToken,
   resetPassword,
-  changePassword
+  changePassword,
+  getTotalUsers,
 };

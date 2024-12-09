@@ -1,12 +1,14 @@
 import express from 'express';
-import { createReview, updateReview, getReviewsByCourse, deleteReview } from '../Controllers/CourseReviewController.js';
+import CourseReviewController from '../Controllers/CourseReviewController.js';
 import { authMiddleware } from '../Middleware/AuthMiddleware.js';
+import { adminAuthMiddleware } from '../Middleware/AdminAuthMiddleware.js';
 
 const router = express.Router();
 
-router.post('/create', authMiddleware, createReview);
-router.put('/update/:id', authMiddleware, updateReview);
-router.get('/get-by-course/:courseId', getReviewsByCourse);
-router.delete('/delete/:id', authMiddleware, deleteReview);
+router.post('/create', authMiddleware, CourseReviewController.createReview);
+router.put('/update/:id', authMiddleware, CourseReviewController.updateReview);
+router.get('/get-by-course/:courseId', CourseReviewController.getReviewsByCourse);
+router.delete('/delete/:id', authMiddleware, CourseReviewController.deleteReview);
+router.get('/admin/get-total-reviews', authMiddleware, adminAuthMiddleware, CourseReviewController.getTotalReviews);
 
 export default router;

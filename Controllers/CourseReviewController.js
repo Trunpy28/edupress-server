@@ -1,7 +1,8 @@
 import CourseReviewService from '../Services/CourseReviewService.js';
 import CourseReview from '../Models/CourseReview.js';
+import RegisterCourseService from '../Services/RegisterCourseService.js';
 
-export const createReview = async (req, res) => {
+const createReview = async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: 'User not logged in' });
@@ -22,7 +23,7 @@ export const createReview = async (req, res) => {
   }
 };
 
-export const updateReview = async (req, res) => {
+const updateReview = async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: 'User not logged in' });
@@ -40,7 +41,7 @@ export const updateReview = async (req, res) => {
   }
 };
 
-export const getReviewsByCourse = async (req, res) => {
+const getReviewsByCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
     const reviews = await CourseReviewService.getReviewsByCourse(courseId);
@@ -50,7 +51,7 @@ export const getReviewsByCourse = async (req, res) => {
   }
 };
 
-export const deleteReview = async (req, res) => {
+const deleteReview = async (req, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ message: 'User not logged in' });
@@ -74,3 +75,20 @@ export const deleteReview = async (req, res) => {
     return res.status(500).json({ message: 'Error deleting review', error: error.message });
   }
 };
+
+const getTotalReviews = async (req, res) => {
+  try {
+    const totalReviews = await CourseReviewService.getTotalReviews();
+    return res.status(200).json({ totalReviews });
+  } catch (error) {
+    return res.status(500).json({ message: 'Error fetching total totalReviews', error: error.message });
+  }
+}
+
+export default {
+  createReview,
+  updateReview,
+  getReviewsByCourse,
+  deleteReview,
+  getTotalReviews,
+}

@@ -8,5 +8,6 @@ router.get('/admin/registrations', authMiddleware, adminAuthMiddleware, Register
 router.patch('/admin/registrations/:id', authMiddleware, adminAuthMiddleware, RegisterCourseController.updateRegistrationStatus);
 router.post('/register', authMiddleware, RegisterCourseController.createRegistration);
 router.get('/get-registration/:courseId', authMiddleware, RegisterCourseController.getRegisteredCourse);
+router.get('/admin/get-total-registrations', authMiddleware, adminAuthMiddleware, RegisterCourseController.getTotalRegistrations);
 
 export default router;
