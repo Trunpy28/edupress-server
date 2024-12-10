@@ -29,7 +29,7 @@ const updateRegistrationStatus = async (id, status) => {
   }
 };
 
-const createRegistration = async (userId, courseId) => {
+const createRegistration = async (userId, courseId, course) => {
   try {
     const existingRegistration = await RegisterCourseModel.findOne({
       userId,
@@ -37,7 +37,13 @@ const createRegistration = async (userId, courseId) => {
     });
     if (existingRegistration && ["Pending", "Confirmed"].includes(existingRegistration.status)) throw new Error("Registration already exists");
     
-    const registration = new RegisterCourseModel({ userId, courseId });
+    let registration = null;
+    if(course?.price === 0 || course?.discountPrice === 0) {
+      registration = new RegisterCourseModel({ userId, courseId, status: "Confirmed" });
+    }
+    else {
+      registration = new RegisterCourseModel({ userId, courseId });
+    }
     return await registration.save();
   } catch (error) {
     throw new Error("Error creating registration: " + error.message);

@@ -1,3 +1,4 @@
+import CourseService from '../Services/CourseService.js';
 import RegisterCourseService from '../Services/RegisterCourseService.js';
 
 const getAllRegistrations = async (req, res) => {
@@ -30,7 +31,12 @@ const createRegistration = async (req, res) => {
     const { courseId } = req.body;
     if (!userId) return res.status(401).json({ message: 'User does not exist' });
     try {
-        const registration = await RegisterCourseService.createRegistration(userId, courseId);
+        const course = await CourseService.getCourseById(courseId);
+        if(!course) {
+            return res.status(404).json({ message: 'Course not found' });
+        }
+
+        const registration = await RegisterCourseService.createRegistration(userId, courseId, course);
         
         return res.status(201).json(registration);
     }
