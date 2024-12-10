@@ -25,7 +25,7 @@ const loginUser = async (req, res) => {
         res.cookie('refresh_token', refreshToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production', // Chỉ gửi qua HTTPS trong môi trường sản xuất
-            sameSite: 'Strict',
+            sameSite: 'None',
         });
 
         return res.status(200).json({ accessToken });
